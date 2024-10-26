@@ -1,9 +1,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "input_buffer.h"
+#include "meta_commands.h"
+#include "prepare_statements.h"
 
 void printprompt() { printf("my_sqlite > "); }
 
@@ -21,24 +22,31 @@ void read_input(InputBuffer *input_buffer) {
   input_buffer->buffer[bytes_read - 1] = 0;
 }
 
-void close_input_buffer(InputBuffer *input_buffer) {
-  free(input_buffer->buffer);
-  free(input_buffer);
-}
-
 int main(int argc, char *argv[]) {
 
   InputBuffer *input_buffer = new_input_buffer();
   while (true) {
     printprompt();
     read_input(input_buffer);
+    if (input_buffer->buffer[0] == '.') {
+      switch (process_meta_command(input_buffer)) {
+      case META_COMMAND_SUCCESS:
+        continue;
+      case META_COMMAND_UNRECOGNIZED:
+        printf("Unrecognized command '%s'.\n", input_buffer->buffer);
+        continue;
+      }
+    }
 
-    if (strcmp(input_buffer->buffer, ".exit") == 0) {
-      close_input_buffer(input_buffer);
-      exit(EXIT_SUCCESS);
-      break;
-    } else {
-      printf("Unrecognized command '%s'.\n", input_buffer->buffer);
+    Statement *statement;
+    switch (process_statement(input_buffer, statement)) {
+    case PREPARE_SUCCESS:
+      exec_statement(statement);
+      continue;
+    case PREPARE_UNRECOGNIZED_COMMAND:
+      printf("Unrecognized keyword at the start of '%s'.\n",
+             input_buffer->buffer);
+      continue;
     }
   }
 }
