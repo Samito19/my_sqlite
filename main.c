@@ -4,7 +4,7 @@
 
 #include "input_buffer.h"
 #include "meta_commands.h"
-#include "prepare_statements.h"
+#include "statement_processor.h"
 
 void printprompt() { printf("my_sqlite > "); }
 
@@ -40,10 +40,10 @@ int main(int argc, char *argv[]) {
 
     Statement *statement;
     switch (process_statement(input_buffer, statement)) {
-    case PREPARE_SUCCESS:
+    case PROCESSOR_SUCCESS:
       exec_statement(statement);
       continue;
-    case PREPARE_UNRECOGNIZED_COMMAND:
+    case PROCESSOR_UNRECOGNIZED_COMMAND:
       printf("Unrecognized keyword at the start of '%s'.\n",
              input_buffer->buffer);
       continue;
