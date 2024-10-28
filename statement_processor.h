@@ -2,20 +2,28 @@
 #define STATEMENT_PROCESSOR_H
 
 #include "input_buffer.h"
+#include "table.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 typedef enum {
   PROCESSOR_SUCCESS,
+  PROCESSOR_SYNTAX_ERROR,
   PROCESSOR_UNRECOGNIZED_COMMAND,
 } ProcessorResult;
+
+typedef enum { EXEC_SUCCESS, EXEC_TABLE_FULL } ExecuteResult;
 
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 
 typedef struct {
   StatementType type;
+  Row row;
 } Statement;
 
 ProcessorResult process_statement(InputBuffer *, Statement *);
-void exec_statement(Statement *);
+ExecuteResult exec_statement(Statement *, Table *);
 
 #define STATEMENT_PROCESSOR_H
 #endif // !STATEMENT_PROCESSOR_H
