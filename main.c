@@ -44,6 +44,12 @@ int main(int argc, char *argv[]) {
     case PROCESSOR_SYNTAX_ERROR:
       printf("Syntax error in the statement\n");
       continue;
+    case PROCESSOR_STR_TOO_LONG:
+      printf("String is too long.\n");
+      break;
+    case PROCESSOR_ID_NEGATIVE:
+      printf("Id cannot be negative.\n");
+      break;
     case PROCESSOR_UNRECOGNIZED_COMMAND:
       printf("Unrecognized keyword at the start of '%s'.\n",
              input_buffer->buffer);

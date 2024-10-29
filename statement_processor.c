@@ -1,4 +1,6 @@
 #include "statement_processor.h"
+#include "constants.h"
+#include "input_buffer.h"
 
 ExecuteResult exec_insert(Table *table, Row *row) {
   serialize(row_slot(table, table->num_rows), row);
@@ -24,24 +26,48 @@ ExecuteResult exec_select(Table *table, Row *row) {
   return EXEC_SUCCESS;
 }
 
+ProcessorResult process_insert(InputBuffer *input_buffer,
+                               Statement *statement) {
+  statement->type = STATEMENT_INSERT;
+
+  char *keyword = strtok(input_buffer->buffer, " ");
+  char *id_string = strtok(NULL, " ");
+  char *username = strtok(NULL, " ");
+  char *email = strtok(NULL, " ");
+
+  if (id_string == NULL || username == NULL || email == NULL) {
+    return PROCESSOR_SYNTAX_ERROR;
+  }
+
+  int id = atoi(id_string);
+  if (id < 0) {
+    return PROCESSOR_ID_NEGATIVE;
+  }
+
+  if (strlen(username) > COLUMN_USERNAME_SIZE) {
+    return PROCESSOR_STR_TOO_LONG;
+  }
+
+  if (strlen(email) > COLUMN_EMAIL_SIZE) {
+    return PROCESSOR_STR_TOO_LONG;
+  }
+
+  statement->row.id = id;
+  strcpy(statement->row.username, username);
+  strcpy(statement->row.email, email);
+
+  printf("Inserted: (%d, %s, %s)\n", statement->row.id, statement->row.username,
+         statement->row.email);
+  return PROCESSOR_SUCCESS;
+}
+
 ProcessorResult process_statement(InputBuffer *input_buffer,
                                   Statement *statement) {
   if (strcmp(input_buffer->buffer, "select") == 0) {
     statement->type = STATEMENT_SELECT;
     return PROCESSOR_SUCCESS;
   } else if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
-    statement->type = STATEMENT_INSERT;
-    int args =
-        sscanf(input_buffer->buffer, "insert %d %s %s", &(statement->row.id),
-               statement->row.username, statement->row.email);
-    if (args < 3) {
-      return PROCESSOR_SYNTAX_ERROR;
-    }
-
-    printf("Inserted: (%d, %s, %s)\n", statement->row.id,
-           statement->row.username, statement->row.email);
-
-    return PROCESSOR_SUCCESS;
+    return process_insert(input_buffer, statement);
   } else {
     return PROCESSOR_UNRECOGNIZED_COMMAND;
   }
