@@ -23,7 +23,7 @@ void read_input(InputBuffer *input_buffer) {
 
 int main(int argc, char *argv[]) {
   InputBuffer *input_buffer = new_input_buffer();
-  Table *table = new_table();
+  Table *table = open_db();
   while (true) {
     printprompt();
     read_input(input_buffer);
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    Statement *statement;
+    Statement *statement = (Statement *)malloc(sizeof(Statement));
     switch (process_statement(input_buffer, statement)) {
     case PROCESSOR_SUCCESS:
       break;
@@ -46,10 +46,10 @@ int main(int argc, char *argv[]) {
       continue;
     case PROCESSOR_STR_TOO_LONG:
       printf("String is too long.\n");
-      break;
+      continue;
     case PROCESSOR_ID_NEGATIVE:
       printf("Id cannot be negative.\n");
-      break;
+      continue;
     case PROCESSOR_UNRECOGNIZED_COMMAND:
       printf("Unrecognized keyword at the start of '%s'.\n",
              input_buffer->buffer);

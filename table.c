@@ -1,30 +1,38 @@
 #include "table.h"
 
-Table *new_table() {
+Table *open_db() {
   Table *table = (Table *)malloc(sizeof(Table));
-  table->num_rows = 0;
-  for (int page_index = 0; page_index < MAX_PAGES; page_index++) {
-    table->pages[page_index] = NULL;
-  }
+  Pager *pager = open_pager();
+  table->num_rows = pager->file_length / ROW_SIZE;
+  table->pager = pager;
   return table;
 }
 
-void free_table(Table *table) {
-  for (int page_index = 0; page_index < MAX_PAGES; page_index++) {
-    free(table->pages[page_index]);
+void close_db(Table *table) {
+  Pager *pager = table->pager;
+  uint32_t num_full_pages = table->num_rows / ROWS_PER_PAGE;
+
+  for (int page_num = 0; page_num < num_full_pages; page_num++) {
+    void *page = pager->pages[page_num];
+    if (page == NULL) {
+      continue;
+    }
+    flush_page(pager, page_num, PAGE_SIZE);
+    free(page);
+    pager->pages[page_num] = NULL;
   }
+
+  uint32_t num_additional_rows = table->num_rows % ROWS_PER_PAGE;
+  if (num_additional_rows > 0) {
+    uint32_t page_num = num_full_pages;
+    if (pager->pages[page_num] != NULL) {
+      flush_page(pager, page_num, num_additional_rows * ROW_SIZE);
+      free(pager->pages[page_num]);
+      pager->pages[page_num] = NULL;
+    }
+  }
+
+  close(pager->file_descriptor);
+  free(pager);
   free(table);
-}
-
-void *row_slot(Table *table, uint32_t row_num) {
-  uint32_t page_num = row_num / ROWS_PER_PAGE;
-  void *page = table->pages[page_num];
-  if (page == NULL) {
-    page = table->pages[page_num] = malloc(PAGE_SIZE);
-  }
-
-  uint32_t row_offset = row_num % ROWS_PER_PAGE;
-  uint32_t bytes_offset = row_offset * ROW_SIZE;
-
-  return page + bytes_offset;
 }

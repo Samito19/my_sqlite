@@ -1,17 +1,22 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include "pager.h"
 #include "serializers.h"
+#include <fcntl.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 typedef struct {
-  void *pages[MAX_PAGES];
   uint32_t num_rows;
+  Pager *pager;
 } Table;
 
-Table *new_table(void);
-void free_table(Table *);
-void *row_slot(Table *, uint32_t);
+Table *open_db(void);
+void close_db(Table *);
+void *row_slot(Pager *, uint32_t);
 
 #endif // !TABLE_H

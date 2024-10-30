@@ -3,7 +3,7 @@
 #include "input_buffer.h"
 
 ExecuteResult exec_insert(Table *table, Row *row) {
-  serialize(row_slot(table, table->num_rows), row);
+  serialize(row_slot(table->pager, table->num_rows), row);
   table->num_rows += 1;
   return EXEC_SUCCESS;
 }
@@ -19,7 +19,7 @@ ExecuteResult exec_select(Table *table, Row *row) {
 
   for (int row_num = 0; row_num < table->num_rows; row_num++) {
     Row row;
-    deserialize(&row, row_slot(table, row_num));
+    deserialize(&row, row_slot(table->pager, row_num));
     print_row(&row);
   }
 
@@ -30,7 +30,7 @@ ProcessorResult process_insert(InputBuffer *input_buffer,
                                Statement *statement) {
   statement->type = STATEMENT_INSERT;
 
-  char *keyword = strtok(input_buffer->buffer, " ");
+  char *_keyword = strtok(input_buffer->buffer, " ");
   char *id_string = strtok(NULL, " ");
   char *username = strtok(NULL, " ");
   char *email = strtok(NULL, " ");
@@ -77,9 +77,7 @@ ExecuteResult exec_statement(Statement *statement, Table *table) {
   switch (statement->type) {
   case STATEMENT_SELECT:
     return exec_select(table, &(statement->row));
-    break;
   case STATEMENT_INSERT:
     return exec_insert(table, &(statement->row));
-    break;
   }
 }
