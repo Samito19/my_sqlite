@@ -1,9 +1,8 @@
 #include "statement_processor.h"
-#include "constants.h"
-#include "input_buffer.h"
 
 ExecuteResult exec_insert(Table *table, Row *row) {
-  serialize(row_slot(table->pager, table->num_rows), row);
+  Cursor *cursor = table_end(table);
+  serialize(cursor_value(cursor), row);
   table->num_rows += 1;
   return EXEC_SUCCESS;
 }
@@ -17,10 +16,13 @@ ExecuteResult exec_select(Table *table, Row *row) {
     return EXEC_TABLE_FULL;
   }
 
-  for (int row_num = 0; row_num < table->num_rows; row_num++) {
+  Cursor *cursor = table_start(table);
+
+  while (!(cursor->end_of_table)) {
     Row row;
-    deserialize(&row, row_slot(table->pager, row_num));
+    deserialize(&row, cursor_value(cursor));
     print_row(&row);
+    cursor_advance(cursor);
   }
 
   return EXEC_SUCCESS;

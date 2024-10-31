@@ -24,6 +24,7 @@ void read_input(InputBuffer *input_buffer) {
 int main(int argc, char *argv[]) {
   InputBuffer *input_buffer = new_input_buffer();
   Table *table = open_db();
+
   while (true) {
     printprompt();
     read_input(input_buffer);

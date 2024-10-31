@@ -19,5 +19,6 @@ typedef struct {
 
 Pager *open_pager(void);
 void flush_page(Pager *, uint32_t, uint32_t);
+void *get_page(Pager *, uint32_t);
 
 #endif // !PAGER_H

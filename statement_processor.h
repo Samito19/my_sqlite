@@ -1,6 +1,8 @@
 #ifndef STATEMENT_PROCESSOR_H
 #define STATEMENT_PROCESSOR_H
 
+#include "constants.h"
+#include "cursor.h"
 #include "input_buffer.h"
 #include "table.h"
 #include <stdint.h>
