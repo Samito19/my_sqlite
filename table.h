@@ -1,6 +1,7 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include "btree.h"
 #include "pager.h"
 #include "serializers.h"
 #include <fcntl.h>
@@ -11,7 +12,7 @@
 #include <unistd.h>
 
 typedef struct {
-  uint32_t num_rows;
+  uint32_t root_page_num;
   Pager *pager;
 } Table;
 

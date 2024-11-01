@@ -1,9 +1,23 @@
 #include "statement_processor.h"
+#include "btree.h"
 
+void leaf_node_insert(Cursor *cursor, uint32_t key, Row *row) {
+  void *node = get_page(cursor->table->pager, cursor->page_num);
+  uint32_t num_cells = *leaf_node_num_cells(node);
+  memcpy(leaf_node_cell(node, key), row, LEAF_NODE_CELL_SIZE);
+  serialize(leaf_node_value(node, cursor->cell_num), row);
+  *(leaf_node_num_cells(node)) += 1;
+  *leaf_node_key(node, cursor->cell_num) = key;
+}
 ExecuteResult exec_insert(Table *table, Row *row) {
   Cursor *cursor = table_end(table);
-  serialize(cursor_value(cursor), row);
-  table->num_rows += 1;
+
+  if (cursor->cell_num >= LEAF_NODE_MAX_CELLS) {
+    printf("Leaf node is full. Need to implement node splitting.\n");
+    exit(EXIT_FAILURE);
+  }
+  leaf_node_insert(cursor, row->id, row);
+  free(cursor);
   return EXEC_SUCCESS;
 }
 
@@ -12,19 +26,18 @@ void print_row(Row *row) {
 }
 
 ExecuteResult exec_select(Table *table, Row *row) {
-  if (table->num_rows >= TABLE_MAX_ROWS) {
-    return EXEC_TABLE_FULL;
-  }
-
   Cursor *cursor = table_start(table);
 
   while (!(cursor->end_of_table)) {
     Row row;
-    deserialize(&row, cursor_value(cursor));
+    deserialize(
+        &row, leaf_node_value(get_page(cursor->table->pager, cursor->page_num),
+                              cursor->cell_num));
     print_row(&row);
     cursor_advance(cursor);
   }
 
+  free(cursor);
   return EXEC_SUCCESS;
 }
 

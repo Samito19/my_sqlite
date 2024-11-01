@@ -16,6 +16,14 @@ Pager *open_pager() {
   }
 
   pager->file_length = file_length;
+
+  if ((file_length % PAGE_SIZE) != 0) {
+    printf("DB file is not a whole number of pages. The file is corrupt.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  pager->num_pages = file_length / PAGE_SIZE;
+  printf("set num_pages to %d\n", pager->num_pages);
   pager->file_descriptor = file_descriptor;
 
   for (int page_index = 0; page_index < MAX_PAGES; page_index++) {
@@ -25,7 +33,7 @@ Pager *open_pager() {
   return pager;
 }
 
-void flush_page(Pager *pager, uint32_t page_num, uint32_t size) {
+void flush_page(Pager *pager, uint32_t page_num) {
   off_t offset = lseek(pager->file_descriptor, page_num * PAGE_SIZE, SEEK_SET);
   if (offset == -1) {
     printf("Failed to seek file: %d\n", errno);
@@ -33,7 +41,7 @@ void flush_page(Pager *pager, uint32_t page_num, uint32_t size) {
   }
 
   size_t bytes_written =
-      write(pager->file_descriptor, pager->pages[page_num], size);
+      write(pager->file_descriptor, pager->pages[page_num], PAGE_SIZE);
   if (bytes_written == -1) {
     printf("Failed to write data to db file: %d\n", errno);
     exit(EXIT_FAILURE);
@@ -64,6 +72,10 @@ void *get_page(Pager *pager, uint32_t page_num) {
       }
     }
     pager->pages[page_num] = page;
+
+    if (page_num >= pager->num_pages) {
+      pager->num_pages += 1;
+    }
   }
 
   return pager->pages[page_num];

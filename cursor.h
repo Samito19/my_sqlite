@@ -1,13 +1,13 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
-#include "pager.h"
 #include "table.h"
 #include <stdbool.h>
 
 typedef struct {
   Table *table;
-  uint32_t row_num;
+  uint32_t cell_num;
+  uint32_t page_num;
   bool end_of_table;
 } Cursor;
 
