@@ -12,9 +12,10 @@ typedef struct {
 } Cursor;
 
 Cursor *table_start(Table *);
-Cursor *table_end(Table *);
+Cursor *table_find(Table *, uint32_t);
 void cursor_advance(Cursor *);
 void *cursor_value(Cursor *);
+Cursor *leaf_node_find(Table *, uint32_t, uint32_t);
 
 #endif // !CURSOR_H
 #define CURSOR_H

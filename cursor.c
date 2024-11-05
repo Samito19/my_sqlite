@@ -1,4 +1,5 @@
 #include "cursor.h"
+#include "btree.h"
 
 Cursor *table_start(Table *table) {
   Cursor *cursor = (Cursor *)malloc(sizeof(Cursor));
@@ -13,15 +14,42 @@ Cursor *table_start(Table *table) {
   return cursor;
 }
 
-Cursor *table_end(Table *table) {
+Cursor *table_find(Table *table, uint32_t key) {
+  uint32_t root_page_num = table->root_page_num;
+  void *root_node = get_page(table->pager, root_page_num);
+  if (get_node_type(root_node) == NODE_LEAF) {
+    return leaf_node_find(table, root_page_num, key);
+  } else {
+    printf("Need to implement searching internal nodes.\n");
+    exit(EXIT_FAILURE);
+  }
+}
+
+Cursor *leaf_node_find(Table *table, uint32_t page_num, uint32_t key) {
+  void *node = get_page(table->pager, page_num);
+  uint32_t num_cells = *leaf_node_num_cells(node);
+
   Cursor *cursor = (Cursor *)malloc(sizeof(Cursor));
   cursor->table = table;
+  cursor->page_num = page_num;
 
-  void *root_node = get_page(table->pager, table->root_page_num);
-  int32_t num_cells = *(leaf_node_num_cells(root_node));
-  cursor->cell_num = num_cells;
-  cursor->end_of_table = true;
+  uint32_t min_index = 0;
+  uint32_t one_past_max_index = num_cells;
 
+  while (min_index != one_past_max_index) {
+    uint32_t mid = (min_index + one_past_max_index) / 2;
+    uint32_t key_at_index = *leaf_node_key(node, mid);
+    if (key == key_at_index) {
+      cursor->cell_num = mid;
+      return cursor;
+    } else if (key < key_at_index) {
+      one_past_max_index = mid;
+    } else {
+      min_index = mid + 1;
+    }
+  }
+
+  cursor->cell_num = min_index;
   return cursor;
 }
 

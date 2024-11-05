@@ -23,7 +23,6 @@ Pager *open_pager() {
   }
 
   pager->num_pages = file_length / PAGE_SIZE;
-  printf("set num_pages to %d\n", pager->num_pages);
   pager->file_descriptor = file_descriptor;
 
   for (int page_index = 0; page_index < MAX_PAGES; page_index++) {

@@ -17,7 +17,11 @@ typedef enum {
   PROCESSOR_UNRECOGNIZED_COMMAND,
 } ProcessorResult;
 
-typedef enum { EXEC_SUCCESS, EXEC_TABLE_FULL } ExecuteResult;
+typedef enum {
+  EXEC_SUCCESS,
+  EXEC_TABLE_FULL,
+  EXECUTE_DUPLICATE_KEY
+} ExecuteResult;
 
 typedef enum { STATEMENT_INSERT, STATEMENT_SELECT } StatementType;
 

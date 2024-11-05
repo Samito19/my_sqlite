@@ -8,6 +8,14 @@
 
 typedef enum { NODE_INTERNAL, NODE_LEAF } NodeType;
 
+uint32_t *leaf_node_num_cells(void *);
+void *leaf_node_cell(void *, uint32_t);
+uint32_t *leaf_node_key(void *, uint32_t);
+void *leaf_node_value(void *, uint32_t);
+void init_leaf_node(void *);
+void print_leaf_node(void *);
+NodeType get_node_type(void *);
+
 /*
  * Common Node Header Layout
  */
@@ -45,12 +53,5 @@ const static uint32_t LEAF_NODE_SPACE_FOR_CELLS =
     PAGE_SIZE - LEAF_NODE_HEADER_SIZE;
 const static uint32_t LEAF_NODE_MAX_CELLS =
     LEAF_NODE_SPACE_FOR_CELLS / LEAF_NODE_CELL_SIZE;
-
-uint32_t *leaf_node_num_cells(void *);
-void *leaf_node_cell(void *, uint32_t);
-uint32_t *leaf_node_key(void *, uint32_t);
-void *leaf_node_value(void *, uint32_t);
-void init_leaf_node(void *);
-void print_leaf_node(void *);
 
 #endif // !BTREE_H
