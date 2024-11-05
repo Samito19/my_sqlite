@@ -3,6 +3,12 @@
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *row) {
   void *node = get_page(cursor->table->pager, cursor->page_num);
   uint32_t num_cells = *leaf_node_num_cells(node);
+
+  if (num_cells >= LEAF_NODE_MAX_CELLS) {
+    leaf_node_split_insert(cursor, key, row);
+    return;
+  }
+
   if (cursor->cell_num < num_cells) {
     // Make room for new cell
     for (uint32_t i = num_cells; i > cursor->cell_num; i--) {
@@ -10,7 +16,7 @@ void leaf_node_insert(Cursor *cursor, uint32_t key, Row *row) {
              LEAF_NODE_CELL_SIZE);
     }
   }
-  // memcpy(leaf_node_cell(node, key), row, LEAF_NODE_CELL_SIZE);
+
   *(leaf_node_num_cells(node)) += 1;
   *leaf_node_key(node, cursor->cell_num) = key;
   serialize(leaf_node_value(node, cursor->cell_num), row);
@@ -21,11 +27,6 @@ ExecuteResult exec_insert(Table *table, Row *row) {
   Cursor *cursor = table_find(table, key_to_insert);
   void *node = get_page(cursor->table->pager, cursor->page_num);
   uint32_t num_cells = *leaf_node_num_cells(node);
-
-  if (num_cells >= LEAF_NODE_MAX_CELLS) {
-    printf("Leaf node is full. Need to implement node splitting.\n");
-    return EXEC_TABLE_FULL;
-  }
 
   if (cursor->cell_num < num_cells) {
     uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);
