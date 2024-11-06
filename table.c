@@ -1,4 +1,6 @@
 #include "table.h"
+#include "pager.h"
+#include <string.h>
 
 Table *open_db() {
   Table *table = (Table *)malloc(sizeof(Table));
@@ -31,4 +33,17 @@ void close_db(Table *table) {
   close(pager->file_descriptor);
   free(pager);
   free(table);
+}
+
+void create_new_root(Table *table, uint32_t right_child_page_num) {
+  /* Handle splitting the root
+   * Old root needs to be copied to the new page (left one)
+   */
+
+  void *root = get_page(table->pager, table->root_page_num);
+  void *right_child = get_page(table->pager, right_child_page_num);
+  uint32_t left_child_num = get_unused_page_num(table->pager);
+  void *left_child = get_page(table->pager, left_child_num);
+  memcpy(left_child, root, PAGE_SIZE);
+  set_root_node(left_child, false);
 }

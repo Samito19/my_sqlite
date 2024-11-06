@@ -19,5 +19,6 @@ typedef struct {
 Table *open_db(void);
 void close_db(Table *);
 void *row_slot(Pager *, uint32_t);
+void create_new_root(Table *, uint32_t);
 
 #endif // !TABLE_H

@@ -15,6 +15,8 @@ void *leaf_node_value(void *, uint32_t);
 void init_leaf_node(void *);
 void print_leaf_node(void *);
 NodeType get_node_type(void *);
+bool is_root_node(void *);
+void set_root_node(void *, bool);
 
 /*
  * Common Node Header Layout

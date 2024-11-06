@@ -31,6 +31,15 @@ void init_leaf_node(void *node) {
   *leaf_node_num_cells(node) = 0;
 }
 
+bool is_root_node(void *node) {
+  uint8_t value = *((uint8_t *)node + IS_ROOT_OFFSET);
+  return (bool)value;
+}
+
+void set_root_node(void *node, bool is_root) {
+  *((uint8_t *)node + IS_ROOT_OFFSET) = (uint8_t)is_root;
+}
+
 void print_leaf_node(void *node) {
   uint32_t num_cells = *leaf_node_num_cells(node);
   printf("leaf (size %d)\n", num_cells);
