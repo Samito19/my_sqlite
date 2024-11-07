@@ -1,4 +1,5 @@
 #include "statement_processor.h"
+#include "btree.h"
 
 void leaf_node_insert(Cursor *cursor, uint32_t key, Row *row) {
   void *node = get_page(cursor->table->pager, cursor->page_num);

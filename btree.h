@@ -1,10 +1,12 @@
 #ifndef BTREE_H
 #define BTREE_H
 
+#include "pager.h"
 #include "serializers.h"
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef enum { NODE_INTERNAL, NODE_LEAF } NodeType;
 
@@ -13,10 +15,17 @@ void *leaf_node_cell(void *, uint32_t);
 uint32_t *leaf_node_key(void *, uint32_t);
 void *leaf_node_value(void *, uint32_t);
 void init_leaf_node(void *);
-void print_leaf_node(void *);
+void print_tree(Pager *, uint32_t, uint32_t);
 NodeType get_node_type(void *);
 bool is_root_node(void *);
 void set_root_node(void *, bool);
+void init_internal_node(void *);
+uint32_t *internal_node_num_keys(void *);
+uint32_t *internal_node_right_child(void *);
+uint32_t *internal_node_cell(void *, uint32_t);
+uint32_t *internal_node_child(void *, uint32_t);
+uint32_t *internal_node_key(void *, uint32_t);
+uint32_t get_node_max(void *);
 
 /*
  * Common Node Header Layout
@@ -30,6 +39,28 @@ const static uint32_t PARENT_POINTER_SIZE = sizeof(uint32_t);
 const static uint32_t PARENT_POINTER_OFFSET = IS_ROOT_OFFSET + IS_ROOT_SIZE;
 const static uint8_t COMMON_NODE_HEADER_SIZE =
     NODE_TYPE_SIZE + IS_ROOT_SIZE + PARENT_POINTER_SIZE;
+
+/*
+ * Internal Node Header Layout
+ */
+
+const static uint32_t INTERNAL_NODE_NUM_KEYS_SIZE = sizeof(uint32_t);
+const static uint32_t INTERNAL_NODE_NUM_KEYS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const static uint32_t INTERNAL_NODE_RIGHT_CHILD_SIZE = sizeof(uint32_t);
+const static uint32_t INTERNAL_NODE_RIGHT_CHILD_OFFSET =
+    INTERNAL_NODE_NUM_KEYS_OFFSET + INTERNAL_NODE_NUM_KEYS_SIZE;
+const static uint32_t INTERNAL_NODE_HEADER_SIZE =
+    COMMON_NODE_HEADER_SIZE + INTERNAL_NODE_NUM_KEYS_SIZE +
+    INTERNAL_NODE_RIGHT_CHILD_SIZE;
+
+/*
+ * Internal Node Body Layout
+ */
+
+const static uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
+const static uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
+const static uint32_t INTERNAL_NODE_CELL_SIZE =
+    INTERNAL_NODE_KEY_SIZE + INTERNAL_NODE_CHILD_SIZE;
 
 /*
  * Leaf Node Header Layout

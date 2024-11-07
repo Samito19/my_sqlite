@@ -1,2 +1,5 @@
 my_sqlite
 db
+Gemfile
+Gemfile.lock
+tests.rb
