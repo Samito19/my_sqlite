@@ -17,6 +17,7 @@ void cursor_advance(Cursor *);
 void *cursor_value(Cursor *);
 Cursor *leaf_node_find(Table *, uint32_t, uint32_t);
 void leaf_node_split_insert(Cursor *, uint32_t, Row *);
+Cursor *internal_node_find(Table *, uint32_t, uint32_t);
 
 #endif // !CURSOR_H
 #define CURSOR_H
