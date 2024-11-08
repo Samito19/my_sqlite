@@ -32,7 +32,11 @@ void init_leaf_node(void *node) {
   *leaf_node_num_cells(node) = 0;
 }
 
-void init_internal_node(void *node) {}
+void init_internal_node(void *node) {
+  set_node_type(node, NODE_INTERNAL);
+  set_root_node(node, false);
+  *internal_node_num_keys(node) = 0;
+}
 
 bool is_root_node(void *node) {
   uint8_t value = *((uint8_t *)node + IS_ROOT_OFFSET);
@@ -76,9 +80,9 @@ uint32_t *internal_node_key(void *node, uint32_t key_num) {
 uint32_t get_node_max(void *node) {
   switch (get_node_type(node)) {
   case NODE_INTERNAL:
-    return *internal_node_key(node, *internal_node_num_keys(node));
+    return *internal_node_key(node, *internal_node_num_keys(node) - 1);
   case NODE_LEAF:
-    return *leaf_node_key(node, *leaf_node_num_cells(node));
+    return *leaf_node_key(node, *leaf_node_num_cells(node) - 1);
   }
 }
 
@@ -93,26 +97,28 @@ void print_tree(Pager *pager, uint32_t page_num, uint32_t indentation_level) {
   uint32_t num_keys, child;
 
   switch (get_node_type(node)) {
-  case NODE_INTERNAL:
+  case (NODE_LEAF):
+    num_keys = *leaf_node_num_cells(node);
+    indent(indentation_level);
+    printf("- leaf (size %d)\n", num_keys);
+    for (uint32_t i = 0; i < num_keys; i++) {
+      indent(indentation_level + 1);
+      printf("- %d\n", *leaf_node_key(node, i));
+    }
+    break;
+  case (NODE_INTERNAL):
     num_keys = *internal_node_num_keys(node);
     indent(indentation_level);
+    printf("- internal (size %d)\n", num_keys);
     for (uint32_t i = 0; i < num_keys; i++) {
       child = *internal_node_child(node, i);
       print_tree(pager, child, indentation_level + 1);
+
+      indent(indentation_level + 1);
       printf("- key %d\n", *internal_node_key(node, i));
     }
     child = *internal_node_right_child(node);
     print_tree(pager, child, indentation_level + 1);
-    break;
-  case NODE_LEAF:
-    num_keys = *leaf_node_num_cells(node);
-    indent(indentation_level);
-
-    printf("- leaf (size %d)\n", num_keys);
-    for (uint32_t i = 0; i < num_keys; i++) {
-      indent(indentation_level);
-      printf("- %d\n", i);
-    }
     break;
   }
 }
