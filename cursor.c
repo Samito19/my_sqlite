@@ -4,15 +4,10 @@
 #include <string.h>
 
 Cursor *table_start(Table *table) {
-  Cursor *cursor = (Cursor *)malloc(sizeof(Cursor));
-  cursor->table = table;
-  cursor->page_num = table->root_page_num;
-  cursor->cell_num = 0;
-
-  void *root_node = get_page(table->pager, table->root_page_num);
-  uint32_t num_cells = *leaf_node_num_cells(root_node);
+  Cursor *cursor = table_find(table, 0);
+  void *node = get_page(table->pager, cursor->page_num);
+  uint32_t num_cells = *leaf_node_num_cells(node);
   cursor->end_of_table = num_cells == 0;
-
   return cursor;
 }
 
@@ -94,6 +89,10 @@ void leaf_node_split_insert(Cursor *cursor, uint32_t key, Row *row) {
   void *new_node = get_page(cursor->table->pager, new_page_num);
   init_leaf_node(new_node);
 
+  /* Update next leaf nodes */
+  *leaf_node_next_leaf(old_node) = new_page_num;
+  *leaf_node_next_leaf(new_node) = *leaf_node_next_leaf(old_node);
+
   /*
    * The code below will insure that the keys are properly divided between the
    * two new nodes
@@ -114,7 +113,9 @@ void leaf_node_split_insert(Cursor *cursor, uint32_t key, Row *row) {
     void *destination = leaf_node_cell(destination_node, index_within_node);
 
     if (i == cursor->cell_num) {
-      serialize(destination, row);
+      serialize(destination,
+                leaf_node_value(destination_node, index_within_node));
+      *leaf_node_key(destination_node, index_within_node) = key;
     } else if (i > cursor->cell_num) {
       memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
     } else {
@@ -136,8 +137,15 @@ void cursor_advance(Cursor *cursor) {
   uint32_t page_num = cursor->page_num;
   void *node = get_page(cursor->table->pager, page_num);
   cursor->cell_num += 1;
-  if (cursor->cell_num >= *(leaf_node_num_cells(node))) {
-    cursor->end_of_table = true;
+  if (cursor->cell_num > *leaf_node_num_cells(node)) {
+    uint32_t next_page_num = *leaf_node_next_leaf(node);
+    if (next_page_num == 0) {
+      /* This means we have reached the last lead node */
+      cursor->end_of_table = true;
+    } else {
+      cursor->page_num = next_page_num;
+      cursor->cell_num = 0;
+    }
   }
 }
 

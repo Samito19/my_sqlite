@@ -8,4 +8,4 @@ run:
 	./my_sqlite
 
 clean:
-	rm -f my_sqlite db
+	rm -f my_sqlite

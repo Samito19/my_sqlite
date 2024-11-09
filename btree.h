@@ -26,6 +26,7 @@ uint32_t *internal_node_cell(void *, uint32_t);
 uint32_t *internal_node_child(void *, uint32_t);
 uint32_t *internal_node_key(void *, uint32_t);
 uint32_t get_node_max(void *);
+uint32_t *leaf_node_next_leaf(void *);
 
 /*
  * Common Node Header Layout
@@ -68,6 +69,9 @@ const static uint32_t INTERNAL_NODE_CELL_SIZE =
 
 const static uint32_t LEAF_NODE_NUM_CELLS_SIZE = sizeof(uint32_t);
 const static uint32_t LEAF_NODE_NUM_CELLS_OFFSET = COMMON_NODE_HEADER_SIZE;
+const static uint32_t LEAF_NODE_NEXT_LEAF_SIZE = sizeof(uint32_t);
+const static uint32_t LEAF_NODE_NEXT_LEAF_OFFSET =
+    LEAF_NODE_NUM_CELLS_OFFSET + LEAF_NODE_NUM_CELLS_SIZE;
 const static uint32_t LEAF_NODE_HEADER_SIZE =
     COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE;
 
