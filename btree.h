@@ -72,8 +72,9 @@ const static uint32_t LEAF_NODE_NUM_CELLS_OFFSET = COMMON_NODE_HEADER_SIZE;
 const static uint32_t LEAF_NODE_NEXT_LEAF_SIZE = sizeof(uint32_t);
 const static uint32_t LEAF_NODE_NEXT_LEAF_OFFSET =
     LEAF_NODE_NUM_CELLS_OFFSET + LEAF_NODE_NUM_CELLS_SIZE;
-const static uint32_t LEAF_NODE_HEADER_SIZE =
-    COMMON_NODE_HEADER_SIZE + LEAF_NODE_NUM_CELLS_SIZE;
+const static uint32_t LEAF_NODE_HEADER_SIZE = COMMON_NODE_HEADER_SIZE +
+                                              LEAF_NODE_NUM_CELLS_SIZE +
+                                              LEAF_NODE_NEXT_LEAF_SIZE;
 
 /*
  * Leaf Node Body Layout

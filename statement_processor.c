@@ -45,7 +45,7 @@ void print_row(Row *row) {
   printf("(%d, %s, %s)\n", row->id, row->username, row->email);
 }
 
-ExecuteResult exec_select(Table *table, Row *row) {
+ExecuteResult exec_select(Table *table) {
   Cursor *cursor = table_start(table);
 
   while (!(cursor->end_of_table)) {
@@ -109,7 +109,7 @@ ProcessorResult process_statement(InputBuffer *input_buffer,
 ExecuteResult exec_statement(Statement *statement, Table *table) {
   switch (statement->type) {
   case STATEMENT_SELECT:
-    return exec_select(table, &(statement->row));
+    return exec_select(table);
   case STATEMENT_INSERT:
     return exec_insert(table, &(statement->row));
   }

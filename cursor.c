@@ -90,8 +90,8 @@ void leaf_node_split_insert(Cursor *cursor, uint32_t key, Row *row) {
   init_leaf_node(new_node);
 
   /* Update next leaf nodes */
-  *leaf_node_next_leaf(old_node) = new_page_num;
   *leaf_node_next_leaf(new_node) = *leaf_node_next_leaf(old_node);
+  *leaf_node_next_leaf(old_node) = new_page_num;
 
   /*
    * The code below will insure that the keys are properly divided between the
@@ -113,8 +113,7 @@ void leaf_node_split_insert(Cursor *cursor, uint32_t key, Row *row) {
     void *destination = leaf_node_cell(destination_node, index_within_node);
 
     if (i == cursor->cell_num) {
-      serialize(destination,
-                leaf_node_value(destination_node, index_within_node));
+      serialize(leaf_node_value(destination_node, index_within_node), row);
       *leaf_node_key(destination_node, index_within_node) = key;
     } else if (i > cursor->cell_num) {
       memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
@@ -137,7 +136,7 @@ void cursor_advance(Cursor *cursor) {
   uint32_t page_num = cursor->page_num;
   void *node = get_page(cursor->table->pager, page_num);
   cursor->cell_num += 1;
-  if (cursor->cell_num > *leaf_node_num_cells(node)) {
+  if (cursor->cell_num >= *leaf_node_num_cells(node)) {
     uint32_t next_page_num = *leaf_node_next_leaf(node);
     if (next_page_num == 0) {
       /* This means we have reached the last lead node */

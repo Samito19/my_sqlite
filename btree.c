@@ -47,7 +47,6 @@ bool is_root_node(void *node) {
   uint8_t value = *((uint8_t *)node + IS_ROOT_OFFSET);
   return (bool)value;
 }
-
 void set_root_node(void *node, bool is_root) {
   *((uint8_t *)node + IS_ROOT_OFFSET) = (uint8_t)is_root;
 }
