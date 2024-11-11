@@ -1,6 +1,7 @@
 #ifndef BTREE_H
 #define BTREE_H
 
+#include "constants.h"
 #include "pager.h"
 #include "serializers.h"
 #include <stdbool.h>
@@ -27,6 +28,7 @@ uint32_t *internal_node_child(void *, uint32_t);
 uint32_t *internal_node_key(void *, uint32_t);
 uint32_t get_node_max(void *);
 uint32_t *leaf_node_next_leaf(void *);
+uint32_t *node_parent(void *);
 
 /*
  * Common Node Header Layout
@@ -62,6 +64,9 @@ const static uint32_t INTERNAL_NODE_KEY_SIZE = sizeof(uint32_t);
 const static uint32_t INTERNAL_NODE_CHILD_SIZE = sizeof(uint32_t);
 const static uint32_t INTERNAL_NODE_CELL_SIZE =
     INTERNAL_NODE_KEY_SIZE + INTERNAL_NODE_CHILD_SIZE;
+// const static uint32_t INTERNAL_NODE_MAX_KEYS =
+//     (PAGE_SIZE - INTERNAL_NODE_HEADER_SIZE) / INTERNAL_NODE_CELL_SIZE;
+const static uint32_t INTERNAL_NODE_MAX_KEYS = 3;
 
 /*
  * Leaf Node Header Layout

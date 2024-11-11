@@ -30,6 +30,8 @@ void set_node_type(void *node, NodeType type) {
   *((uint8_t *)node + NODE_TYPE_OFFSET) = value;
 }
 
+uint32_t *node_parent(void *node) { return node + PARENT_POINTER_OFFSET; }
+
 void init_leaf_node(void *node) {
   set_node_type(node, NODE_LEAF);
   set_root_node(node, false);
